@@ -1,0 +1,34 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: git-clone
+spec:
+  workspaces:
+  - name: source-workspace
+    description: The git repo will be cloned onto this volume
+  params:
+  - name: url
+    description: URL of the git repository to clone
+    type: string
+  - name: revision
+    description: Git revision (branch, tag, commit SHA or ref) to clone
+    type: string
+    default: "main"
+  steps:
+  - name: clear-directory
+    image: alpine/git
+    script: |
+        # Custom logic to clear the directory
+        CHECKOUT_DIR="$(workspaces.source-workspace.path)"
+        if [[ -d "$CHECKOUT_DIR" ]] ; then
+          rm -rf "$CHECKOUT_DIR"/*
+          rm -rf "$CHECKOUT_DIR"/.[!.]*
+          rm -rf "$CHECKOUT_DIR"/..?*
+        fi
+  - name: clone
+    image: alpine/git
+    script: |
+      git clone $(params.url) $(workspaces.source-workspace.path)
+      cd $(workspaces.source-workspace.path)
+      git checkout $(params.revision)
+ 

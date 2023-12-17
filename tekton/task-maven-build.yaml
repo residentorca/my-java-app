@@ -1,0 +1,21 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: maven-build
+spec:
+  params:
+  - name: MAVEN_IMAGE
+    type: string
+    description: Maven image to use
+    default: maven:3.8-openjdk-11
+  workspaces:
+  - name: source-workspace
+    description: Workspace containing the source code
+  - name: shared-workspace
+    description: Workspace containing the source code
+  steps:
+  - name: build
+    image: $(params.MAVEN_IMAGE)
+    script: |
+      cd $(workspaces.source-workspace.path)
+      mvn -Dmaven.repo.local=$(workspaces.shared-workspace.path)/.m2/repository clean package

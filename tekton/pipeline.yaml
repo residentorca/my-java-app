@@ -1,0 +1,43 @@
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: my-java-app-build-pipeline
+spec:
+  params:
+  - name: MAVEN_IMAGE
+    type: string
+    default: maven:3.8-openjdk-11
+  - name: GIT_REPO_URL
+    type: string
+    default: "https://github.com/residentorca/my-java-app.git"
+  - name: GIT_REVISION
+    type: string
+    default: "main"
+  workspaces:
+  - name: source-workspace
+  - name: shared-workspace
+  tasks:
+  - name: fetch-repo
+    taskRef:
+      name: git-clone
+    params:
+    - name: url
+      value: $(params.GIT_REPO_URL)
+    - name: revision
+      value: $(params.GIT_REVISION)
+    workspaces:
+    - name: source-workspace
+      workspace: source-workspace
+  - name: build-java-app
+    taskRef:
+      name: maven-build
+    params:
+    - name: MAVEN_IMAGE
+      value: $(params.MAVEN_IMAGE)
+    workspaces:
+    - name: source-workspace
+      workspace: source-workspace
+    - name: shared-workspace
+      workspace: shared-workspace
+    runAfter:
+    - fetch-repo

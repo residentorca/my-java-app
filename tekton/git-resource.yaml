@@ -1,0 +1,21 @@
+# apiVersion: tekton.dev/v1alpha1
+# kind: PipelineResource
+# metadata:
+#   name: my-java-app-git
+# spec:
+#   type: git
+#   params:
+#   - name: url
+#     value: https://github.com/residentorca/my-java-app.git
+#   - name: revision
+#     value: main  # Branch name
+# ---
+# apiVersion: tekton.dev/v1alpha1
+# kind: PipelineResource
+# metadata:
+#   name: my-java-app-image
+# spec:
+#   type: image
+#   params:
+#   - name: url
+#     value: ghcr.io/residentorca/my-java-app]  # Replace with your container registry

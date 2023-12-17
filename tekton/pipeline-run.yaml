@@ -1,0 +1,17 @@
+apiVersion: tekton.dev/v1beta1
+kind: PipelineRun
+metadata:
+  name: my-java-app-build-pipeline-run-1
+spec:
+  pipelineRef:
+    name: my-java-app-build-pipeline
+  params:
+  - name: MAVEN_IMAGE
+    value: maven:3.8-openjdk-11
+  workspaces:
+  - name: source-workspace
+    persistentVolumeClaim:
+      claimName: source-pvc
+  - name: shared-workspace
+    persistentVolumeClaim:
+      claimName: shared-pvc
