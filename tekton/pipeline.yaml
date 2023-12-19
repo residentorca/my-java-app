@@ -41,3 +41,16 @@ spec:
       workspace: shared-workspace
     runAfter:
     - fetch-repo
+  - name: build-and-push-image  # New task for building and pushing the image
+    taskRef:
+      name: build-and-push
+    params:
+      - name: IMAGE
+        value: ghcr.io/residentorca/my-java-app  # Specify your image name here
+      - name: TAG
+        value: latest  # Or the specific tag you wish to use
+    workspaces:
+      - name: source-workspace
+        workspace: source-workspace
+    runAfter:
+      - build-java-app  # Ensure this runs after the build-java-app task

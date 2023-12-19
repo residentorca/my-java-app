@@ -1,0 +1,40 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: build-and-push
+spec:
+  params:
+    - name: IMAGE
+      type: string
+    - name: TAG
+      type: string
+      default: "latest"
+  workspaces:
+    - name: source-workspace
+  steps:
+    - name: build-and-push
+      image: quay.io/buildah/stable:latest
+      env:
+        - name: STORAGE_DRIVER
+          value: vfs
+        - name: STORAGE_OPTS
+          value: "vfs.imagestore=/var/lib/shared"
+        - name: REGISTRY_AUTH_FILE
+          value: /var/run/secrets/containers/.dockerconfigjson
+      script: |
+        #!/usr/bin/env bash
+        # Build the container image
+        buildah --storage-driver=$(STORAGE_DRIVER) --storage-opt=$(STORAGE_OPTS) bud \
+          --format=docker --tls-verify=false --no-cache -f run.Dockerfile \
+          -t $(params.IMAGE):$(params.TAG) $(workspaces.source-workspace.path)
+
+        # Push the container image
+        buildah --storage-driver=$(STORAGE_DRIVER) --storage-opt=$(STORAGE_OPTS) push \
+          --tls-verify=false $(params.IMAGE):$(params.TAG) docker://$(params.IMAGE):$(params.TAG)
+      volumeMounts:
+        - name: registry-credentials
+          mountPath: /var/run/secrets/containers
+  volumes:
+    - name: registry-credentials
+      secret:
+        secretName: registry-credentials

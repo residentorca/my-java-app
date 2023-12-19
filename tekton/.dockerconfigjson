@@ -1,0 +1,7 @@
+{
+    "auths": {
+            "ghcr.io": {
+                    "auth": "<repace with base64 of user>:token"
+            }
+    }
+}
